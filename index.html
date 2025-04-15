@@ -2,116 +2,82 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ACME Car Rentals Test</title>
+    <title>Avaamo ChatBot Integration</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            background-color: #f5f5f5;
         }
-
-        header {
-            background-color: #333;
-            color: white;
-            padding: 1rem;
-            text-align: center;
+        .llamb-link {
+            color: #007bff;
+            text-decoration: none;
         }
-
-        main {
-            padding: 2rem;
-        }
-
-        footer {
-            background-color: #333;
-            color: white;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        .car-details {
-            border: 1px solid #ccc;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .service-details {
-            border: 1px solid #ccc;
-            padding: 1rem;
-            margin-bottom: 1rem;
+        .llamb-link:hover {
+            text-decoration: underline;
         }
     </style>
-    
-    
 </head>
 <body>
 
-    <header>
-        <h1>Welcome to ACME Car Rentals</h1>
-        <p>Explore a world of car rental options</p>
-    </header>
+<h2>Avaamo ChatBot Embedded</h2>
 
-    <main>
-        <h2>Why Choose ACME Car Rentals?</h2>
-        <p>Discover the benefits of renting with us:</p>
-        <ul>
-            <li>Wide range of car options</li>
-            <li>Flexible rental plans</li>
-            <li>Convenient booking process</li>
+<!-- Placeholder for Avaamo Web Chat Frame -->
+<div id="avaamo-chat-container"></div>
 
-        </ul>
+<script>
+    var AvaamoChatBot = function(t) {
+        function o(t, o) {
+            var n = document.createElement("script");
+            n.setAttribute("src", t),
+            n.setAttribute("id", "avm-web-channel"),
+            n.onload = o,
+            document.body.appendChild(n)
+        }
 
-        <h2>Our Services</h2>
-        <div class="car-details">
-            <h3>Economy Category:</h3>
-            <ul>
-                <li>Nissan Versa - $30 per day</li>
-                <li>Toyota Yaris - $35 per day</li>
-                <li>Ford Fiesta - $25 per day</li>
-            </ul>
-        </div>
+        return this.options = t || {},
+        this.load = function(t) {
+            o(this.options.url, function() {
+                window.Avaamo.addFrame();
+                t && typeof t === "function" && t(window.Avaamo);
+            });
+        }, this;
+    };
 
-        <div class="car-details">
-            <h3>Super Category:</h3>
-            <ul>
-                <li>BMW 3 Series - $50 per day</li>
-                <li>Mercedes-Benz C-Class - $55 per day</li>
-                <li>Audi A4 - $45 per day</li>
-            </ul>
-        </div>
+    var chatBox = new AvaamoChatBot({
+        url: "https://c6.avaamo.com/web_channels/0968fab7-4e6c-445f-961f-47c011c58f2a"
+    });
 
-        <div class="car-details">
-            <h3>Heavy Category:</h3>
-            <ul>
-                <li>Ford F-150 - $60 per day</li>
-                <li>Chevrolet Silverado - $65 per day</li>
-                <li>Ram 1500 - $55 per day</li>
-            </ul>
-        </div>
+    chatBox.load(function(avaamo) {
 
-        <div class="service-details">
-            <h3>Fuel Options:</h3>
-            <ul>
-                <li>Self Fuel - Fill the tank upon return by the customer</li>
-                <li>Premium package - The rental agency will fill the tank, and a 15% service charge will be applied to the total price of the rental.</li>
-            </ul>
-        </div>
+        avaamo.onBotStreamMessage = function(content, fullMessage) {
+            // Optional: If the platform sends fullMessage.context, extract it
+            try {
+                if (fullMessage && fullMessage.context && fullMessage.context.user) {
+                    const user = fullMessage.context.user;
+                    let debugInfo = `
+                        <div style="margin-top:10px; background:#eef; padding:10px; border-radius:8px;">
+                            <strong>User Context Debug:</strong><br>
+                            First Name: ${user.first_name || 'N/A'}<br>
+                            Last Name: ${user.last_name || 'N/A'}<br>
+                            Email: ${user.email || 'N/A'}<br>
+                            UUID: ${user.uuid || 'N/A'}<br>
+                            Phone: ${user.phone || 'N/A'}<br>
+                            SSN: ${user.ssn || 'N/A'}<br>
+                            IP Address: ${user.ip_address || 'N/A'}
+                        </div>`;
+                    content += debugInfo;
+                }
+            } catch (e) {
+                console.error("Error processing context.user info:", e);
+            }
 
-        <h2>Contact Us</h2>
-        <p>Have questions or need assistance? Reach out to our support team.</p>
-        <p>Email: support@acmecarrentals.com</p>
-    </main>
+            // Convert markdown-style links to HTML
+            content = content.replace(/(?<!<source>.*?)(\[(.*?)\]\((https?:\/\/[^\s]+)\))/g, '<a class="llamb-link" target="_blank" href="$3">$2</a>');
 
-    <footer>
-        <p>&copy; 2024 ACME Car Rentals. All rights reserved.</p>
-    </footer>
+            avaamo.renderBotStreamMessage(content);
+        };
 
-    <script type="text/javascript"> var AvaamoChatBot=function(t){function o(t,o){var n=document.createElement("script");n.setAttribute("src",t),n.setAttribute("id","avm-web-channel"),n.onload=o,document.body.appendChild(n)}return this.options=t||{},this.load=function(t){o(this.options.url,function(){window.Avaamo.addFrame(),t&&"function"==typeof(t)&&t(window.Avaamo)})},this}; var chatBox = new AvaamoChatBot({url: "https://c6.avaamo.com/web_channels/ab85bd9a-0d78-403f-be26-7f5d4684d80a?user_info=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiPDEyMzQ1Nj4iLCJlbWFpbCI6ImthcnRoZWVrLmRvZUBhdmFhbW8uY29tIiwicGhvbmUiOiIrMTIzNDU2Nzg5MCIsImZpcnN0X25hbWUiOiJLYXJ0aGVlayIsImxhc3RfbmFtZSI6IkRvZSIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE5MzM5MDIyfQ.UW8MvD_tQweuwgKDJJQllutlmzHjpU3O2aEObDxS70w"}); chatBox.load(); </script>
-
+    });
+</script>
 
 </body>
 </html>
-
-
